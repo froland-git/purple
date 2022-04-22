@@ -8,6 +8,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 basedir = os.path.abspath(os.path.dirname(__file__)) # SQLite - sqlite:///absolute/path/to/database
 
@@ -23,6 +24,7 @@ manager = Manager(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
@@ -53,6 +55,7 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
 
 manager.add_command("shell", Shell(make_context=make_shell_context))
+# manager.add_command('db', MigrateCommand) # DEPRECATED
 
 @app.errorhandler(404)
 def page_not_found(e):
