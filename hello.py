@@ -10,6 +10,7 @@ from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
+from threading import Thread
 
 basedir = os.path.abspath(os.path.dirname(__file__)) # SQLite - sqlite:///absolute/path/to/database
 
@@ -61,12 +62,20 @@ class User(db.Model):
         return '<User %r>' % self.username
 
 
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
 def send_email(to, subject, template, **kwargs):
     msg = Message(app.config['PURPLE_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
                   sender=app.config['PURPLE_MAIL_SENDER'], recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
-    mail.send(msg)
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+    return thr
 
 
 def make_shell_context():
