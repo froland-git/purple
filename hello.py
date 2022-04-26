@@ -95,7 +95,7 @@ def index():
             db.session.add(user)
             session['known'] = False
             if app.config['PURPLE_ADMIN']:
-                send_email(app.config['FLASKY_ADMIN'], 'New User',
+                send_email(app.config['PURPLE_ADMIN'], 'New User',
                            'mail/new_user', user=user)
 
         else:
