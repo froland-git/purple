@@ -2,9 +2,12 @@ alembic==1.7.7
 blinker==1.4
 click==8.0.4
 dataclasses==0.8
+dnspython==2.2.1
 dominate==2.6.0
+email-validator==1.2.1
 Flask==2.0.3
 Flask-Bootstrap==3.3.7.1
+Flask-Login==0.5.0
 Flask-Mail==0.9.1
 Flask-Migrate==3.1.0
 Flask-Moment==1.0.2
@@ -12,6 +15,7 @@ Flask-Script==2.0.5
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==1.0.0
 greenlet==1.1.2
+idna==3.3
 importlib-metadata==4.8.3
 importlib-resources==5.4.0
 itsdangerous==2.0.1

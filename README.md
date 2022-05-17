@@ -9,6 +9,6 @@
 - __Flask-SQLAlchemy__ for working with DB models
 - __Flask-Migrate__ for migrating DB model (not data)
 - __Flask-Moment__ for working with date 
-- __Flask-login__ -for management user sessions after authentication;
+- __Flask-login__ for management user sessions after authentication;
 - __Werkzeug__ for password hashing;
 - __itsdangerous__ for creating encrypted tokens and validates them
