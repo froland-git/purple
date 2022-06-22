@@ -35,7 +35,24 @@ def register():
             password=form.password.data
         )
         db.session.add(user)
-        flash('You can now login.')
-        return redirect(url_for('auth.login'))
+        #-----[08e] Block for sending email confirmation-----
+        db.session.commit()
+        token = user.generate_confirmation_token()
+        send_email(user.email, 'Confirm Your Account',
+                   'auth/email/confirm', user=user, token=token)
+        flash('A confirmation email has been sent to you by email.')
+        return redirect(url_for('main.index'))
+        #-----[08e] End block-----
     return render_template('auth/register.html', form=form)
 
+#----- [08e] Function to confirm account -----
+@auth.route('/confirm/<token>')
+@login_required # Decorator form Flask-Login. Need to login on a first step
+def confirm(token):
+    if current_user.confirmed:
+        return redirect(url_for('main.index'))
+    if current_user.confirm(token):
+        flash('You have confirmed your account. Thanks!')
+    else:
+        flash('The confirmation link is invalid or has expired.')
+    return redirect(url_for('main.index'))
