@@ -63,3 +63,4 @@ class UserModelTestCase(unittest.TestCase):
         token = u.generate_confirmation_token(1) # expiration = 1 sec
         time.sleep(2)
         self.assertFalse(u.confirm(token))
+        
