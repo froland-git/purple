@@ -78,3 +78,13 @@ def confirm(token):
     else:
         flash('The confirmation link is invalid or has expired.')
     return redirect(url_for('main.index'))
+
+#----- [08e] Function to resend confirmation email -----
+@auth.route('/confirm')
+@login_required
+def resend_confirmation():
+    token = current_user.generate_confirmation_token()
+    send_email(current_user.email, 'Confirm Your Account',
+               'auth/email/confirm', user=current_user, token=token)
+    flash('A new confirmation email has been sent to you by email.')
+    return redirect(url_for('main.index'))
