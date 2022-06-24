@@ -6,12 +6,14 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in \
-        ['true', 'on', '1']
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'localhost')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', '8025'))
+    # MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
+    # MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
+    # MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in \
+    #     ['true', 'on', '1']
+    # MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    # MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     PURPLE_MAIL_SUBJECT_PREFIX = '[Purple]'
     PURPLE_MAIL_SENDER = 'Purple Admin <purple@example.com>'
     PURPLE_ADMIN = os.environ.get('PURPLE_ADMIN')
