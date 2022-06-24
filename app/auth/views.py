@@ -98,7 +98,8 @@ def change_password():
         # Use def verify_password(self, password) form models.py as a condition
         if current_user.verify_password(form.old_password.data):
             current_user.password = form.password.data  # password - property from models.py
-            db.session.add(current_user)
+            db.session.add(current_user)  # Only add it to the session without commit (because session is still open)
+            # db.session.commit() # but with commit it is still working
             flash('Your password has been updated.')
             return redirect(url_for('main.index'))
         else:
