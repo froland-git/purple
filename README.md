@@ -72,3 +72,19 @@ Deleting Existing Records:
 >>> User.query.all()
 [<User 'purple5'>]
 ```
+
+### Unit tests
+Run unittests:
+```
+(venv) $ ./manage.py test
+test_app_exists (test_basics.BasicsTestCase) ... ok
+test_app_is_testing (test_basics.BasicsTestCase) ... ok
+test_duplicate_email_change_token (test_user_model.UserModelTestCase) ... ok
+test_expired_confirmation_token (test_user_model.UserModelTestCase) ... ok
+test_valid_reset_token (test_user_model.UserModelTestCase) ... ok
+----------------------------------------------------------------------
+Ran 5 tests in 9.171s
+
+OK
+
+```
