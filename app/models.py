@@ -5,11 +5,49 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer # for web
 from flask import current_app
 
 
+# ----- [09a] Permission bitmask class -----
+# https://pythonpip.ru/osnovy/staticheskie-peremennye-i-metody-v-python
+class Permission:
+    FOLLOW = 0x01                # 0b00000001
+    COMMENT = 0x02               # 0b00000010
+    WRITE_ARTICLES = 0x04        # 0b00000100
+    MODERATE_COMMENTS = 0x08     # 0b00001000
+    ADMINISTER = 0x80            # 0b10000000
+
+
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)  # [09a] Since the index takes up space, only those fields that are being selected need to be indexed
+    permissions = db.Column(db.Integer)  # [09a]
     users = db.relationship('User', backref='role', lazy='dynamic') # role instead of role_id
+
+    # ----- [09a] Staticmethod to add role to DB -----
+    # Anonymous     = 0b00000000 (0x00) - this role is out of DB
+    # User          = 0b00000001 | 0b00000010 | 0b00000100 = 0b00000111 (0x07)
+    # Moderator     = 0b00000001 | 0b00000010 | 0b00000100 | 0b00001000 = 0b00001111 (0x0f)
+    # Administrator = 0b11111111 (0xff)
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': (Permission.FOLLOW |  # It is a bitwise OR of integers, i.e. 00001111 | 10000000 = 10001111
+                     Permission.COMMENT |
+                     Permission.WRITE_ARTICLES, True),
+            'Moderator': (Permission.FOLLOW |
+                          Permission.COMMENT |
+                          Permission.WRITE_ARTICLES |
+                          Permission.MODERATE_COMMENTS, False),
+            'Administrator': (0xff, False)
+        }
+        for r in roles:  # r - key for dictionary 'roles'
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.permissions = roles[r][0]  # Permission.FOLLOW & Permission.COMMENT ...
+            role.default = roles[r][1]  # True or False
+            db.session.add(role)
+        db.session.commit()
 
     def __repr__(self):
         return '<Role %r>' % self.name
