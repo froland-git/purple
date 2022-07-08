@@ -62,6 +62,17 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128)) # This is like __init__ in ordinary class
     confirmed = db.Column(db.Boolean, default=False)
 
+    # ----- [09a] Set role 'Administrator' or 'Default' role  -----
+    def __init__(self, **kwargs):
+        # Class 'User' is a child of 'UserMixin' and 'db.Model'
+        # https://tirinox.ru/super-python/
+        super(User, self).__init__(**kwargs)  # same as super().__init__(x)
+        if self.role is None:
+            if self.email == current_app.config['FLASKY_ADMIN']:
+                self.role = Role.query.filter_by(permissions=0xff).first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default=True).first()
+
     # Doc: https://www.tutorialsteacher.com/python/property-decorator
     @property
     def password(self): # This is like a getter
