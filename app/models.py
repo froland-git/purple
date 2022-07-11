@@ -1,5 +1,5 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from . import db, login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer # for web-signature JSON
 from flask import current_app
@@ -15,13 +15,17 @@ class Permission:
     ADMINISTER = 0x80            # 0b10000000
 
 
+# DB Relationship:
+#    ONE role to MANY users
+#    https://dev-gang.ru/doc/flask-sqlalchemy/models/
+
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     default = db.Column(db.Boolean, default=False, index=True)  # [09a] Since the index takes up space, only those fields that are being selected need to be indexed
     permissions = db.Column(db.Integer)  # [09a]
-    users = db.relationship('User', backref='role', lazy='dynamic') # role instead of role_id
+    users = db.relationship('User', backref='role', lazy='dynamic')  # 'role' will be a new option for 'User' class
 
     # ----- [09a] Staticmethod to add role to DB -----
     # Anonymous     = 0b00000000 (0x00) - this role is out of DB
@@ -67,6 +71,9 @@ class User(UserMixin, db.Model):
         # Class 'User' is a child of 'UserMixin' and 'db.Model'
         # https://tirinox.ru/super-python/
         super(User, self).__init__(**kwargs)  # same as super().__init__(x)
+        # We can use self.role due to users = db.relationship('User', backref='role', lazy='dynamic')
+        # in class 'Role'
+        # https://flask-sqlalchemy-russian.readthedocs.io/ru/latest/models.html
         if self.role is None:
             if self.email == current_app.config['FLASKY_ADMIN']:
                 self.role = Role.query.filter_by(permissions=0xff).first()
@@ -149,8 +156,33 @@ class User(UserMixin, db.Model):
         db.session.add(self)  # commit() in the view.py
         return True
 
+    # ----- [09a] Methods to check permissions for logged in users -----
+    # 'self.role.permissions' is additional property 'role' in class 'User'
+    # to show all roles connected with this user (role_id is Foreign Key)
+    #
+    # 'permissions' is property in class 'Role'
+    def can(self, permissions):
+        return self.role is not None and \
+            (self.role.permissions & permissions) == permissions
+
+    def is_administrator(self):
+        return self.can(Permission.ADMINISTER)  # Invoke method can
+
     def __repr__(self):
         return '<User %r>' % self.username
+
+
+# ----- [09a] Separate class for Anonymous Users -----
+# No need to check login status for that users
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permissions):
+        return False
+
+    def is_administrator(self):
+        return False
+
+
+login_manager.anonymous_user = AnonymousUser
 
 
 @login_manager.user_loader
