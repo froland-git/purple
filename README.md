@@ -71,6 +71,7 @@ Deleting Existing Records:
 1
 >>> User.query.all()
 [<User 'purple5'>]
+>>> db.session.commit()
 ```
 
 ### Unit tests

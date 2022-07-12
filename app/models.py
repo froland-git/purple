@@ -7,6 +7,12 @@ from flask import current_app
 
 # ----- [09a] Permission bitmask class -----
 # https://pythonpip.ru/osnovy/staticheskie-peremennye-i-metody-v-python
+# To check:
+#   >>>  ./manage.py shell
+#   >>> Permission().COMMENT
+#   2
+#   >>> Permission().ADMINISTER
+#   128
 class Permission:
     FOLLOW = 0x01                # 0b00000001
     COMMENT = 0x02               # 0b00000010
@@ -75,7 +81,7 @@ class User(UserMixin, db.Model):
         # in class 'Role'
         # https://flask-sqlalchemy-russian.readthedocs.io/ru/latest/models.html
         if self.role is None:
-            if self.email == current_app.config['FLASKY_ADMIN']:
+            if self.email == current_app.config['PURPLE_ADMIN']:
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
@@ -136,7 +142,7 @@ class User(UserMixin, db.Model):
     def generate_email_change_token(self, new_email, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps(
-            {'change_email': self.id, 'new_email': new_email}).decode('utf-8') # Hash will include two parameters
+            {'change_email': self.id, 'new_email': new_email}).decode('utf-8')  # Hash will include two parameters
 
     # ----- [08e] Method to change email address -----
     def change_email(self, token):

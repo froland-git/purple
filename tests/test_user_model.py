@@ -1,6 +1,6 @@
 import unittest
 from app import create_app, db
-from app.models import User
+from app.models import User, AnonymousUser, Role, Permission
 import time
 
 
@@ -11,6 +11,7 @@ class UserModelTestCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
+        Role.insert_roles()  # [09a] insert roles to data-test.sqlite
 
     # Basic method performed after all test_<name> methods
     def tearDown(self):
@@ -45,7 +46,7 @@ class UserModelTestCase(unittest.TestCase):
         token = u.generate_confirmation_token() # Generate marker
         self.assertTrue(u.confirm(token)) # Check marker and save it in confirmed field in Model
 
-    # ----- [08e] Use invalid configmation token for existing user -----
+    # ----- [08e] Use invalid confirmation token for existing user -----
     def test_invalid_confirmation_token(self):
         u1 = User(password='cat')
         u2 = User(password='dog')
@@ -114,3 +115,15 @@ class UserModelTestCase(unittest.TestCase):
         token = u2.generate_email_change_token('john@example.com')
         self.assertFalse(u2.change_email(token))
         self.assertTrue(u2.email == 'susan@example.org')
+
+    # ----- [09a] Test to check permission -----
+    def test_roles_and_permissions(self):
+        u = User(email='john@example.com', password='cat')
+        # Permission 'WRITE_ARTICLES' is a part of default role 'User'
+        self.assertTrue(u.can(Permission.WRITE_ARTICLES))
+        self.assertFalse(u.can(Permission.MODERATE_COMMENTS))
+
+    # ----- [09a] Test to check permission for anonymous_user -----
+    def test_anonymous_user(self):
+        u = AnonymousUser()
+        self.assertFalse(u.can(Permission.FOLLOW))
