@@ -74,18 +74,55 @@ Deleting Existing Records:
 >>> db.session.commit()
 ```
 
+DB migration:
+
+1) Create `````.flaskenv`````:
+
+    ```pip install python-dotenv```
+
+    Remember that the flask command puts in the environment variable ```FLASK_APP``` to know where the Flask application is located.
+
+2) Create repository for migration:
+    ```
+    (venv) $ flask db init
+      Creating directory <path>/purple/migrations ...  done
+      Creating directory <path>/purple/migrations/versions ...  done
+      Generating  <path>/purple/migrations/env.py ...  done
+      Generating  <path>/purple/migrations/script.py.mako ...  done
+      Generating  <path>/purple/migrations/alembic.ini ...  done
+      Generating  <path>/purple/migrations/README ...  done
+      Please edit configuration/connection/logging settings in ' <path>/purple/migrations/alembic.ini' before proceeding.
+    ```
+3) Creates a snapshot of the database (model) from the code:
+    ```
+    (venv) $ flask db migrate -m "add roles"
+        INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+        INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+        INFO  [alembic.autogenerate.compare] Detected added column 'roles.default'
+        INFO  [alembic.autogenerate.compare] Detected added column 'roles.permissions'
+        INFO  [alembic.autogenerate.compare] Detected added index 'ix_roles_default' on '['default']'
+          Generating /<path>/purple/migrations/versions/835a1164988b_add_roles.py ...  done
+    ```
+
+4) Update the database structure (tables, but not data):
+    ```
+    (venv) $ flask db upgrade
+        INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+        INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+        INFO  [alembic.runtime.migration] Running upgrade b0cc2a37fb87 -> 835a1164988b, add roles
+    ```
+
 ### Unit tests
 Run unittests:
 ```
 (venv) $ ./manage.py test
-test_app_exists (test_basics.BasicsTestCase) ... ok
-test_app_is_testing (test_basics.BasicsTestCase) ... ok
-test_duplicate_email_change_token (test_user_model.UserModelTestCase) ... ok
-test_expired_confirmation_token (test_user_model.UserModelTestCase) ... ok
-test_valid_reset_token (test_user_model.UserModelTestCase) ... ok
-----------------------------------------------------------------------
-Ran 5 tests in 9.171s
-
-OK
-
+    test_app_exists (test_basics.BasicsTestCase) ... ok
+    test_app_is_testing (test_basics.BasicsTestCase) ... ok
+    test_duplicate_email_change_token (test_user_model.UserModelTestCase) ... ok
+    test_expired_confirmation_token (test_user_model.UserModelTestCase) ... ok
+    test_valid_reset_token (test_user_model.UserModelTestCase) ... ok
+    ----------------------------------------------------------------------
+    Ran 5 tests in 9.171s
+    
+    OK
 ```
