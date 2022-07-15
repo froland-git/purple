@@ -60,6 +60,19 @@ db.session.delete(u)
 db.session.commit()
 ```
 
+Update data for existing Records:
+```
+./manage.py shell
+>>> User.query.filter_by(username='purple').first()
+<User 'purple'>
+>>> User.query.filter_by(username='purple').first().role_id
+>>> User.query.filter_by(username='purple').first().__init__()
+>>> User.query.filter_by(username='purple').first().role_id
+1
+>>> db.session.commit()
+>>> exit()
+```
+
 Deleting Existing Records:
 ```
 ./manage.py shell
