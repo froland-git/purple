@@ -6,6 +6,7 @@ from .forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordRese
 from .. import db
 from ..email import send_email
 
+
 #----- [08e] Actions for unconfirmed users START-----
 # use decorator before_app_request()
 @auth.before_app_request
@@ -14,12 +15,13 @@ def before_request():
     #     # current_user.confirmed - from model.py
     #     # request.endpoint - https://stackoverflow.com/questions/19261833/what-is-an-endpoint-in-flask
     #     # request.endpoint should be out of blueprint 'auth'
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
-            and request.endpoint \
-            and request.blueprint != 'auth' \
-            and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed \
+                and request.endpoint \
+                and request.blueprint != 'auth' \
+                and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/unconfirmed')
